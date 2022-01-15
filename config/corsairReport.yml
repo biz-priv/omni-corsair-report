@@ -1,0 +1,34 @@
+CorsairReport:
+  handler: src/CorsairReport/index.handler
+  layers:
+    - { Ref: CommonLibsLambdaLayer }  
+  environment:
+    DB_PORT: ${ssm:/omni-dw/${self:provider.stage}/db/port}
+    DB_HOST: ${ssm:/omni-dw/${self:provider.stage}/db/host~true}
+    DB_PASSWORD: ${ssm:/omni-dw/${self:provider.stage}/db/password~true}   
+    DB_DATABASE: ${ssm:/omni-dw/${self:provider.stage}/corsair/db/name~true}
+    DB_USER: ${ssm:/omni-dw/${self:provider.stage}/db/user~true}
+    DEFAULT_AWS: ${self:provider.region}
+    SMTP_HOST: ${ssm:/omni-dw/${self:provider.stage}/smtp/host~true}
+    SMTP_PORT: ${ssm:/omni-dw/${self:provider.stage}/smtp/port~true}
+    SMTP_USER: ${ssm:/omni-dw/${self:provider.stage}/smtp/user~true}
+    SMTP_PASSWORD: ${ssm:/omni-dw/${self:provider.stage}/smtp/password~true}
+    SMTP_SENDER: ${ssm:/omni-dw/${self:provider.stage}/smtp/sender~true}
+    SMTP_RECEIVER: ${ssm:/omni-dw/${self:provider.stage}/smtp/receiver~true}
+
+  package:
+    individually: true
+    include:
+        - 'src/CorsairReport/**'
+        - 'src/shared/**'
+  vpc:
+    securityGroupIds:
+      - ${ssm:/omni-dw/${self:provider.stage}/lambda/sgId}
+    subnetIds:
+      - ${ssm:/omni-dw/${self:provider.stage}/lambda/subnetA}
+  events:
+    - schedule: cron(0 5 * * ? *)
+    # - http:
+    #     path: /
+    #     method: get
+    #     cors: true
