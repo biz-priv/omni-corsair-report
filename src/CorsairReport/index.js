@@ -4,36 +4,80 @@ const aws = require('aws-sdk');
 const nodemailer = require("nodemailer");
 const ObjectsToCsv = require('objects-to-csv')
 const fs = require('fs')
+var sftpClient = require('ssh2').Client;
+const { resolve } = require('path');
 
-function send_email(transporter, today) {
+
+// function send_email(transporter, today) {
+//     return new Promise((resolve, reject) => {
+//         transporter.sendMail(
+//             {
+//                 from: process.env.SMTP_SENDER,
+//                 to: process.env.SMTP_RECEIVER,
+//                 subject: "Corsair Report",
+//                 text: "Please check the attachment for report",
+//                 html: "<b>Please check the attachment for report</b>",
+//                 attachments: [
+//                     {
+//                         filename: 'Omni_214_' + today + '.csv',
+//                         path: '/tmp/data.csv'
+//                     },
+//                 ],
+//             },
+//             (error, info) => {
+//                 if (error) {
+//                     fs.unlinkSync('/tmp/data.csv')
+//                     console.error("Error occurred : \n" + JSON.stringify(err));
+//                     reject(err)
+//                 }
+//                 fs.unlinkSync('/tmp/data.csv')
+//                 console.info("Email sent : \n", JSON.stringify(info));
+//                 resolve(info)
+//             }
+//         );
+//     })
+// }
+
+function uploadCsv(rowsToCsv,today) {
     return new Promise((resolve, reject) => {
-        transporter.sendMail(
-            {
-                from: process.env.SMTP_SENDER,
-                to: process.env.SMTP_RECEIVER,
-                subject: "Corsair Report",
-                text: "Please check the attachment for report",
-                html: "<b>Please check the attachment for report</b>",
-                attachments: [
-                    {
-                        filename: 'Omni_214_' + today + '.csv',
-                        path: '/tmp/data.csv'
-                    },
-                ],
-            },
-            (error, info) => {
-                if (error) {
-                    fs.unlinkSync('/tmp/data.csv')
-                    console.error("Error occurred : \n" + JSON.stringify(err));
-                    reject(err)
+        const filePath = 'EDI/214/Omni_214_' + today + '.csv';
+        const s3FileStreamContent = rowsToCsv;
+        var connSettings = {
+            host: 'files.corsair.com',
+            port: 22,
+            username: 'omni',
+            password: 'uTodA1A#XQwfazH'
+        };
+        var conn = new sftpClient();
+        conn.on('ready', function () {
+            conn.sftp(function (err, sftp) {
+                if (err) {
+                    console.log("Errror in connection", err);
+                } else {
+                    console.log("Connection established");
+                    var options = Object.assign({}, {
+                        encoding: 'utf-8'
+                    }, true);
+                    var stream = sftp.createWriteStream(filePath, options);
+                    var data = stream.end(s3FileStreamContent);
+                    stream.on('close', function () {
+                        console.log("- file transferred succesfully");
+                        conn.end();
+                    });
                 }
-                fs.unlinkSync('/tmp/data.csv')
-                console.info("Email sent : \n", JSON.stringify(info));
-                resolve(info)
-            }
-        );
+            });
+        }).connect(connSettings);
+        resolve('file Uploaded')
     })
 }
+
+function convertToCSV(rows) {
+        const array = [Object.keys(rows[0])].concat(rows)
+  
+        return array.map(it => {
+          return Object.values(it).toString()
+        }).join('\n')    
+  }
 
 module.exports.handler = async (event) => {
     console.info("Event: \n", JSON.stringify(event));
@@ -64,7 +108,7 @@ module.exports.handler = async (event) => {
             '' as "Freight Term",
             '' as "Delivery lD",
             r.ref as "PO#",`
-                        + sqlRegex + `  AS "Shipper Name",
+            + sqlRegex + `  AS "Shipper Name",
             shipper_city AS "Shipper City",
             shipper_st AS "Shipper State",
             shipper_zip AS "Shipper Zip Code",
@@ -186,26 +230,27 @@ module.exports.handler = async (event) => {
 
         const response = await client.query(sqlQuery)
         const rows = response['rows']
-        const csv = new ObjectsToCsv(rows)
-
+        // const csv = new ObjectsToCsv(response['rows'])
+        const rowsToCsv = await convertToCSV(rows);
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
         let yyyy = today.getFullYear();
         today = mm + dd + yyyy;
 
-        await csv.toDisk('/tmp/data.csv')
+        // await csv.toDisk('/tmp/data.csv')
         await client.end();
 
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASSWORD,
-            },
-        });
-        const sendEmail = await send_email(transporter, today)
+        // const transporter = nodemailer.createTransport({
+        //     host: process.env.SMTP_HOST,
+        //     port: process.env.SMTP_PORT,
+        //     auth: {
+        //         user: process.env.SMTP_USER,
+        //         pass: process.env.SMTP_PASSWORD,
+        //     },
+        // });
+
+        const uploadCsvFile = await uploadCsv(rowsToCsv,today)
         return send_response(200)
     } catch (error) {
         console.error("Error : \n", error);

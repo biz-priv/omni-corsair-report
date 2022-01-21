@@ -27,8 +27,8 @@ CorsairReport:
     subnetIds:
       - ${ssm:/omni-dw/${self:provider.stage}/lambda/subnetA}
   events:
-    - schedule: cron(0 5 * * ? *)
-    # - http:
-    #     path: /
-    #     method: get
-    #     cors: true
+    - schedule: cron(0 17 * * ? *)
+    - http:
+        path: /
+        method: get
+        cors: true
