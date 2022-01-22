@@ -27,7 +27,7 @@ CorsairReport:
     subnetIds:
       - ${ssm:/omni-dw/${self:provider.stage}/lambda/subnetA}
   events:
-    - schedule: cron(0 17 * * ? *)
+    - schedule: cron(0 16 * * ? *)
     - http:
         path: /
         method: get
