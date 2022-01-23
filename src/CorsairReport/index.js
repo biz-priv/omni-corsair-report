@@ -43,25 +43,25 @@ function uploadCsv(rowsToCsv,today) {
         const filePath = 'EDI/214/Omni_214_' + today + '.csv';
         const s3FileStreamContent = rowsToCsv;
         var connSettings = {
-            host: 'files.corsair.com',
-            port: 22,
-            username: 'omni',
-            password: 'uTodA1A#XQwfazH'
+            host: process.env.SFTP_HOST,
+            port: process.env.SFTP_PORT,
+            username: process.env.SFTP_USER,
+            password: process.env.SFTP_PASSWORD
         };
         var conn = new sftpClient();
         conn.on('ready', function () {
             conn.sftp(function (err, sftp) {
                 if (err) {
-                    console.log("Errror in connection", err);
+                    console.error("Errror in connection", err);
                 } else {
-                    console.log("Connection established");
+                    console.info("Connection established");
                     var options = Object.assign({}, {
                         encoding: 'utf-8'
                     }, true);
                     var stream = sftp.createWriteStream(filePath, options);
                     var data = stream.end(s3FileStreamContent);
                     stream.on('close', function () {
-                        console.log("- file transferred succesfully");
+                        console.info("- file transferred succesfully");
                         conn.end();
                     });
                 }

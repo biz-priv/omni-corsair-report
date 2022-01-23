@@ -9,12 +9,17 @@ CorsairReport:
     DB_DATABASE: ${ssm:/omni-dw/${self:provider.stage}/corsair/db/name~true}
     DB_USER: ${ssm:/omni-dw/${self:provider.stage}/db/user~true}
     DEFAULT_AWS: ${self:provider.region}
-    SMTP_HOST: ${ssm:/omni-dw/${self:provider.stage}/smtp/host~true}
-    SMTP_PORT: ${ssm:/omni-dw/${self:provider.stage}/smtp/port~true}
-    SMTP_USER: ${ssm:/omni-dw/${self:provider.stage}/smtp/user~true}
-    SMTP_PASSWORD: ${ssm:/omni-dw/${self:provider.stage}/smtp/password~true}
-    SMTP_SENDER: ${ssm:/omni-dw/${self:provider.stage}/smtp/sender~true}
-    SMTP_RECEIVER: ${ssm:/omni-dw/${self:provider.stage}/smtp/receiver~true}
+    # SMTP_HOST: ${ssm:/omni-dw/${self:provider.stage}/smtp/host~true}
+    # SMTP_PORT: ${ssm:/omni-dw/${self:provider.stage}/smtp/port~true}
+    # SMTP_USER: ${ssm:/omni-dw/${self:provider.stage}/smtp/user~true}
+    # SMTP_PASSWORD: ${ssm:/omni-dw/${self:provider.stage}/smtp/password~true}
+    # SMTP_SENDER: ${ssm:/omni-dw/${self:provider.stage}/smtp/sender~true}
+    # SMTP_RECEIVER: ${ssm:/omni-dw/${self:provider.stage}/smtp/receiver~true}
+    SFTP_HOST: ${ssm:/omni-dw/${self:provider.stage}/sftp/host}
+    SFTP_PORT: ${ssm:/omni-dw/${self:provider.stage}/sftp/port}
+    SFTP_USER: ${ssm:/omni-dw/${self:provider.stage}/sftp/username}
+    SFTP_PASSWORD: ${ssm:/omni-dw/${self:provider.stage}/sftp/password}
+    
 
   package:
     individually: true
