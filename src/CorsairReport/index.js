@@ -1,83 +1,6 @@
 const { send_response } = require('../shared/utils/responses');
 const { Client } = require("pg");
-const aws = require('aws-sdk');
-const nodemailer = require("nodemailer");
-const ObjectsToCsv = require('objects-to-csv')
-const fs = require('fs')
-var sftpClient = require('ssh2').Client;
-const { resolve } = require('path');
-
-
-// function send_email(transporter, today) {
-//     return new Promise((resolve, reject) => {
-//         transporter.sendMail(
-//             {
-//                 from: process.env.SMTP_SENDER,
-//                 to: process.env.SMTP_RECEIVER,
-//                 subject: "Corsair Report",
-//                 text: "Please check the attachment for report",
-//                 html: "<b>Please check the attachment for report</b>",
-//                 attachments: [
-//                     {
-//                         filename: 'Omni_214_' + today + '.csv',
-//                         path: '/tmp/data.csv'
-//                     },
-//                 ],
-//             },
-//             (error, info) => {
-//                 if (error) {
-//                     fs.unlinkSync('/tmp/data.csv')
-//                     console.error("Error occurred : \n" + JSON.stringify(err));
-//                     reject(err)
-//                 }
-//                 fs.unlinkSync('/tmp/data.csv')
-//                 console.info("Email sent : \n", JSON.stringify(info));
-//                 resolve(info)
-//             }
-//         );
-//     })
-// }
-
-function uploadCsv(rowsToCsv,today) {
-    return new Promise((resolve, reject) => {
-        const filePath = 'EDI/214/Omni_214_' + today + '.csv';
-        const s3FileStreamContent = rowsToCsv;
-        var connSettings = {
-            host: process.env.SFTP_HOST,
-            port: process.env.SFTP_PORT,
-            username: process.env.SFTP_USER,
-            password: process.env.SFTP_PASSWORD
-        };
-        var conn = new sftpClient();
-        conn.on('ready', function () {
-            conn.sftp(function (err, sftp) {
-                if (err) {
-                    console.error("Errror in connection", err);
-                } else {
-                    console.info("Connection established");
-                    var options = Object.assign({}, {
-                        encoding: 'utf-8'
-                    }, true);
-                    var stream = sftp.createWriteStream(filePath, options);
-                    var data = stream.end(s3FileStreamContent);
-                    stream.on('close', function () {
-                        console.info("- file transferred succesfully");
-                        conn.end();
-                    });
-                }
-            });
-        }).connect(connSettings);
-        resolve('file Uploaded')
-    })
-}
-
-function convertToCSV(rows) {
-        const array = [Object.keys(rows[0])].concat(rows)
-  
-        return array.map(it => {
-          return Object.values(it).toString()
-        }).join('\n')    
-  }
+const { uploadCsv, convertToCSV } = require('../shared/csvHelper/index');
 
 module.exports.handler = async (event) => {
     console.info("Event: \n", JSON.stringify(event));
@@ -228,30 +151,19 @@ module.exports.handler = async (event) => {
             --and HOUSE_BILL_NBR = '3658652'
             and A.BILL_TO_NBR  = '17925'`;
 
-        const response = await client.query(sqlQuery)
-        const rows = response['rows']
-        // const csv = new ObjectsToCsv(response['rows'])
-        const rowsToCsv = await convertToCSV(rows);
+        let response = await client.query(sqlQuery)
+        let rows = response['rows'];
+        let rowsToCsv = await convertToCSV(rows);
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
         let yyyy = today.getFullYear();
         today = mm + dd + yyyy;
-
-        // await csv.toDisk('/tmp/data.csv')
         await client.end();
 
-        // const transporter = nodemailer.createTransport({
-        //     host: process.env.SMTP_HOST,
-        //     port: process.env.SMTP_PORT,
-        //     auth: {
-        //         user: process.env.SMTP_USER,
-        //         pass: process.env.SMTP_PASSWORD,
-        //     },
-        // });
+        let uploadCsvFile = await uploadCsv(rowsToCsv, today);
 
-        const uploadCsvFile = await uploadCsv(rowsToCsv,today)
-        return send_response(200)
+        return send_response(200);
     } catch (error) {
         console.error("Error : \n", error);
         send_response(400, error);
