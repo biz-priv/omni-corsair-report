@@ -90,7 +90,7 @@ module.exports.handler = async (event) => {
             a.FILE_dATE >= '2017-12-30'
             --and HOUSE_BILL_NBR = '3658652'
             and A.BILL_TO_NBR  = '17925'
-            and source_SYSTEM = 'WT'
+            and source_SYSTEM = 'WT' and file_nbr not in ('3935974','3991507','3991506','3884577','4038662','3991509','4047280','3898701','3898706','3884582','3991508','3991510')
             )A
             LEFT OUTER JOIN 
             (SELECT distinct file_nbr ,ORDER_sTATUS,EVENT_dATE_UTC FROM shipment_milestone
