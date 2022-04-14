@@ -153,6 +153,7 @@ module.exports.handler = async (event) => {
 
         let response = await client.query(sqlQuery)
         let rows = response['rows'];
+        console.info(rows.length);
         let rowsToCsv = await convertToCSV(rows);
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
@@ -162,7 +163,7 @@ module.exports.handler = async (event) => {
         await client.end();
 
         let uploadCsvFile = await uploadCsv(rowsToCsv, today);
-
+        console.info(uploadCsvFile);
         return send_response(200);
     } catch (error) {
         console.error("Error : \n", error);
