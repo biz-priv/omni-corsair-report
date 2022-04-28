@@ -14,6 +14,7 @@ module.exports.handler = async (event) => {
     });
     try {
         await client.connect();
+        const currentDate = new Date().toISOString().substr(0,10);
         const sqlRegex = "regexp_replace(shipPER_NAME,'[./,@#!$%^&*;:{}=_`~()-]','')";
         const sqlRegex1 = "regexp_replace(consignee_name,'[./#@,!$%^&*;:{}=_`~()-]','')";
         const sqlRegex2 = "regexp_replace(consignee_Addr_1 ,'[./#@,!$%^&*;:{}=_`~()-]','')";
@@ -78,13 +79,8 @@ module.exports.handler = async (event) => {
             `+ sqlRegex5 + ` as "Appointment number",
             to_char(app.app_date, 'MM/DD/YYYY HH:MM') as "Appointment Date",
             to_char(del.EVENT_dATE_UTC, 'MM/DD/YYYY HH:MM') as "Actual Delivered Date",
-            SDE.EVENT_dATE_UTC as "Delay Reason",
-            case when `+ sqlRegex6 + ` then 
-            (case when pod.FILE_NBR is not null then 'POD has been uploaded to FTP' else ' waiting on trucker to submit' end)
-            else 
-            concat(concat(`+ sqlRegex7 + `),
-            case when pod.FILE_NBR is not null then ' POD has been uploaded to FTP' else 'waiting on trucker to submit' end )
-            end as "Comment"
+            sf.descr as "Delay Reason",
+            coalesce(case when pod.FILE_NBR is not null then 'POD has been uploaded to FTP' else null end ,'') ||'  '|| coalesce(sf.note,'') as "Comment"
             from 
             (select * FROM shipment_info A  where 
             a.FILE_dATE >= '2017-12-30'
@@ -139,17 +135,20 @@ module.exports.handler = async (event) => {
             and source_SYSTEM = 'WT'
             )app
             on a.FILE_NBR = app.FILE_NBR
-            left outer join 
-            (select distinct file_nbr ,REF_NBR
-            from  shipment_ref
-            where 
-            ref_typeid = 'APD'
-            and source_SYSTEM = 'WT'
-            )appno
+            left outer join
+            (select distinct file_nbr ,REF_NBR  from  shipment_ref where ref_typeid = 'APD' and source_SYSTEM = 'WT' )appno
             on a.FILE_NBR = appno.FILE_NBR
-            where a.FILE_dATE >= '2017-12-30'
-            --and HOUSE_BILL_NBR = '3658652'
-            and A.BILL_TO_NBR  = '17925'`;
+            left outer join 
+            (select file_nbr ,listagg (descr,',')  within group (order by file_nbr)descr,
+            listagg (note,',')  within group (order by file_nbr)note
+            from
+            service_failure
+            where source_system = 'WT'
+            group by file_nbr )sf 
+            on a.file_nbr = sf.file_nbr 
+            where a.FILE_dATE < '`+ currentDate +`'
+            and A.BILL_TO_NBR  = '17925'
+            and a.cntrl_cust_nbr <> '22153'`;
 
         let response = await client.query(sqlQuery)
         let rows = response['rows'];
