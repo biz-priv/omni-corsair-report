@@ -1,4 +1,5 @@
 const SFTPCLIENT = require('ssh2').Client;
+const { sendEmail } = require('../sendEmail/index');
 
 async function uploadCsv(rowsToCsv, today) {
     return new Promise((resolve, reject) => {
@@ -13,9 +14,14 @@ async function uploadCsv(rowsToCsv, today) {
         let conn = new SFTPCLIENT();
         conn.on('ready', function () {
             console.info("Connection ready..");
-            conn.sftp(function (err, sftp) {
+            conn.sftp(async function (err, sftp) {
                 if (err) {
                     console.error("Error In Connection. File Uploading Failed", err);
+                    
+                    let mailSubject = "Corsair File Failed To Upload";
+                    let mailBody = `Hello, <br><br> Getting error in connection of SFTP. File ${filePath} uploading failed.<br>Thanks.<br>`;
+                    await sendEmail(mailSubject, mailBody);
+
                     reject(err);
                 } else {
                     let options = Object.assign({}, {
@@ -24,9 +30,12 @@ async function uploadCsv(rowsToCsv, today) {
                     console.info("File Transferring to path : " + filePath);
                     let stream = sftp.createWriteStream(filePath, options);
                     let data = stream.end(s3FileStreamContent);
-                    stream.on('close', function () {
+                    stream.on('close',async function () {
                         console.info("File Transferred To SFTP Succesfully");
                         conn.end();
+                        let mailSubject = "Corsair File Transferred To SFTP Succesfully";
+                        let mailBody = `Hello, <br><br> File transferred to SFTP successfully. you can get file in ${filePath} path.`;
+                        await sendEmail(mailSubject, mailBody);
                         resolve('file Uploaded')
                     });
                 }

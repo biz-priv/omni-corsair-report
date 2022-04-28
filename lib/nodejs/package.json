@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "pg": "^8.7.1",
+    "nodemailer": "^6.7.3",
     "serverless": "^1.83.3",
     "serverless-offline": "^4.10.6",
     "serverless-prune-plugin": "^1.5.0",
