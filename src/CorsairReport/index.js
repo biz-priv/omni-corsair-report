@@ -1,83 +1,6 @@
 const { send_response } = require('../shared/utils/responses');
 const { Client } = require("pg");
-const aws = require('aws-sdk');
-const nodemailer = require("nodemailer");
-const ObjectsToCsv = require('objects-to-csv')
-const fs = require('fs')
-var sftpClient = require('ssh2').Client;
-const { resolve } = require('path');
-
-
-// function send_email(transporter, today) {
-//     return new Promise((resolve, reject) => {
-//         transporter.sendMail(
-//             {
-//                 from: process.env.SMTP_SENDER,
-//                 to: process.env.SMTP_RECEIVER,
-//                 subject: "Corsair Report",
-//                 text: "Please check the attachment for report",
-//                 html: "<b>Please check the attachment for report</b>",
-//                 attachments: [
-//                     {
-//                         filename: 'Omni_214_' + today + '.csv',
-//                         path: '/tmp/data.csv'
-//                     },
-//                 ],
-//             },
-//             (error, info) => {
-//                 if (error) {
-//                     fs.unlinkSync('/tmp/data.csv')
-//                     console.error("Error occurred : \n" + JSON.stringify(err));
-//                     reject(err)
-//                 }
-//                 fs.unlinkSync('/tmp/data.csv')
-//                 console.info("Email sent : \n", JSON.stringify(info));
-//                 resolve(info)
-//             }
-//         );
-//     })
-// }
-
-function uploadCsv(rowsToCsv,today) {
-    return new Promise((resolve, reject) => {
-        const filePath = 'EDI/214/Omni_214_' + today + '.csv';
-        const s3FileStreamContent = rowsToCsv;
-        var connSettings = {
-            host: process.env.SFTP_HOST,
-            port: process.env.SFTP_PORT,
-            username: process.env.SFTP_USER,
-            password: process.env.SFTP_PASSWORD
-        };
-        var conn = new sftpClient();
-        conn.on('ready', function () {
-            conn.sftp(function (err, sftp) {
-                if (err) {
-                    console.error("Errror in connection", err);
-                } else {
-                    console.info("Connection established");
-                    var options = Object.assign({}, {
-                        encoding: 'utf-8'
-                    }, true);
-                    var stream = sftp.createWriteStream(filePath, options);
-                    var data = stream.end(s3FileStreamContent);
-                    stream.on('close', function () {
-                        console.info("- file transferred succesfully");
-                        conn.end();
-                    });
-                }
-            });
-        }).connect(connSettings);
-        resolve('file Uploaded')
-    })
-}
-
-function convertToCSV(rows) {
-        const array = [Object.keys(rows[0])].concat(rows)
-  
-        return array.map(it => {
-          return Object.values(it).toString()
-        }).join('\n')    
-  }
+const { uploadCsv, convertToCSV } = require('../shared/csvHelper/index');
 
 module.exports.handler = async (event) => {
     console.info("Event: \n", JSON.stringify(event));
@@ -91,6 +14,7 @@ module.exports.handler = async (event) => {
     });
     try {
         await client.connect();
+        const currentDate = new Date().toISOString().substr(0,10);
         const sqlRegex = "regexp_replace(shipPER_NAME,'[./,@#!$%^&*;:{}=_`~()-]','')";
         const sqlRegex1 = "regexp_replace(consignee_name,'[./#@,!$%^&*;:{}=_`~()-]','')";
         const sqlRegex2 = "regexp_replace(consignee_Addr_1 ,'[./#@,!$%^&*;:{}=_`~()-]','')";
@@ -155,19 +79,14 @@ module.exports.handler = async (event) => {
             `+ sqlRegex5 + ` as "Appointment number",
             to_char(app.app_date, 'MM/DD/YYYY HH:MM') as "Appointment Date",
             to_char(del.EVENT_dATE_UTC, 'MM/DD/YYYY HH:MM') as "Actual Delivered Date",
-            SDE.EVENT_dATE_UTC as "Delay Reason",
-            case when `+ sqlRegex6 + ` then 
-            (case when pod.FILE_NBR is not null then 'POD has been uploaded to FTP' else ' waiting on trucker to submit' end)
-            else 
-            concat(concat(`+ sqlRegex7 + `),
-            case when pod.FILE_NBR is not null then ' POD has been uploaded to FTP' else 'waiting on trucker to submit' end )
-            end as "Comment"
+            sf.descr as "Delay Reason",
+            coalesce(case when pod.FILE_NBR is not null then 'POD has been uploaded to FTP' else null end ,'') ||'  '|| coalesce(sf.note,'') as "Comment"
             from 
             (select * FROM shipment_info A  where 
             a.FILE_dATE >= '2017-12-30'
             --and HOUSE_BILL_NBR = '3658652'
             and A.BILL_TO_NBR  = '17925'
-            and source_SYSTEM = 'WT'
+            and source_SYSTEM = 'WT' and file_nbr not in ('3935974','3991507','3991506','3884577','4038662','3991509','4047280','3898701','3898706','3884582','3991508','3991510')
             )A
             LEFT OUTER JOIN 
             (SELECT distinct file_nbr ,ORDER_sTATUS,EVENT_dATE_UTC FROM shipment_milestone
@@ -216,42 +135,35 @@ module.exports.handler = async (event) => {
             and source_SYSTEM = 'WT'
             )app
             on a.FILE_NBR = app.FILE_NBR
-            left outer join 
-            (select distinct file_nbr ,REF_NBR
-            from  shipment_ref
-            where 
-            ref_typeid = 'APD'
-            and source_SYSTEM = 'WT'
-            )appno
+            left outer join
+            (select distinct file_nbr ,REF_NBR  from  shipment_ref where ref_typeid = 'APD' and source_SYSTEM = 'WT' )appno
             on a.FILE_NBR = appno.FILE_NBR
-            where a.FILE_dATE >= '2017-12-30'
-            --and HOUSE_BILL_NBR = '3658652'
+            left outer join 
+            (select file_nbr ,listagg (descr,',')  within group (order by file_nbr)descr,
+            listagg (note,',')  within group (order by file_nbr)note
+            from
+            service_failure
+            where source_system = 'WT'
+            group by file_nbr )sf 
+            on a.file_nbr = sf.file_nbr 
+            where a.FILE_dATE < '`+ currentDate +`'
             and A.BILL_TO_NBR  = '17925'`;
+            // and a.cntrl_cust_nbr <> '22153'`;
 
-        const response = await client.query(sqlQuery)
-        const rows = response['rows']
-        // const csv = new ObjectsToCsv(response['rows'])
-        const rowsToCsv = await convertToCSV(rows);
+        let response = await client.query(sqlQuery)
+        let rows = response['rows'];
+        console.info(rows.length);
+        let rowsToCsv = await convertToCSV(rows);
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
         let yyyy = today.getFullYear();
         today = mm + dd + yyyy;
-
-        // await csv.toDisk('/tmp/data.csv')
         await client.end();
 
-        // const transporter = nodemailer.createTransport({
-        //     host: process.env.SMTP_HOST,
-        //     port: process.env.SMTP_PORT,
-        //     auth: {
-        //         user: process.env.SMTP_USER,
-        //         pass: process.env.SMTP_PASSWORD,
-        //     },
-        // });
-
-        const uploadCsvFile = await uploadCsv(rowsToCsv,today)
-        return send_response(200)
+        let uploadCsvFile = await uploadCsv(rowsToCsv, today);
+        console.info(uploadCsvFile);
+        return send_response(200);
     } catch (error) {
         console.error("Error : \n", error);
         send_response(400, error);

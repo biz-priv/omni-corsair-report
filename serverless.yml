@@ -1,4 +1,4 @@
-service: omni-corsair-report
+service: omni-dw-corsair
 
 provider:
   name: aws
