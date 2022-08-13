@@ -147,6 +147,7 @@ module.exports.handler = async (event) => {
             group by file_nbr )sf 
             on a.file_nbr = sf.file_nbr 
             where a.FILE_dATE < '`+ currentDate +`'
+            and a.FILE_dATE >= '2022-01-01'
             and A.BILL_TO_NBR  = '17925'`;
             // and a.cntrl_cust_nbr <> '22153'`;
 
