@@ -151,7 +151,8 @@ module.exports.handler = async (event) => {
         where a.FILE_dATE < '`+ currentDate +`'
         and a.FILE_dATE >= '2022-01-01'
         and A.BILL_TO_NBR  = '17925'
-        and a.current_status <> 'CAN'`;
+        and a.current_status <> 'CAN'
+        and HOUSE_BILL_NBR  <> 0`;
 
         let response = await client.query(sqlQuery)
         let rows = response['rows'];
