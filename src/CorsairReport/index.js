@@ -79,9 +79,7 @@ module.exports.handler = async (event) => {
         to_char(a.SCHD_DELV_DATE , 'MM/DD/YYYY HH:MM') as "Estimated Delivery Date",
         `+ sqlRegex5 + ` as "Appointment number",
         to_char(app.app_date, 'MM/DD/YYYY HH:MM') as "Appointment Date",
-        to_char(del.EVENT_dATE_UTC, 'MM/DD/YYYY HH:MM') as "Actual Delivered Date",
-        sf.descr as "Delay Reason",
-        coalesce(case when pod.FILE_NBR is not null then 'POD has been uploaded to FTP' else null end ,'') ||'  '|| coalesce(sf.note,'') as "Comment"
+        to_char(del.EVENT_dATE_UTC, 'MM/DD/YYYY HH:MM') as "Actual Delivered Date"
         from
         (select * FROM shipment_info A  where
         a.FILE_dATE >= '2017-12-30'
