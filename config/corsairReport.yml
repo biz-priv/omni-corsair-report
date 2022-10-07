@@ -1,0 +1,38 @@
+SendReport:
+  handler: src/CorsairReport/index.handler
+  layers:
+    - { Ref: CommonLibsLambdaLayer }  
+  environment:
+    DB_PORT: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/port}
+    DB_HOST: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/host~true}
+    DB_PASSWORD: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/password~true}   
+    DB_DATABASE: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/name~true}
+    DB_USER: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/user~true}
+    DEFAULT_AWS: ${self:provider.region}
+    SFTP_HOST: ${ssm:/omni-dw/corsair/${self:provider.stage}/sftp/host}
+    SFTP_PORT: ${ssm:/omni-dw/corsair/${self:provider.stage}/sftp/port}
+    SFTP_USER: ${ssm:/omni-dw/corsair/${self:provider.stage}/sftp/username}
+    SFTP_PASSWORD: ${ssm:/omni-dw/corsair/${self:provider.stage}/sftp/password}
+    SMTP_HOST: ${ssm:/omni-dw/salesforce/${self:provider.stage}/smtp/host~true}
+    SMTP_PORT: ${ssm:/omni-dw/salesforce/${self:provider.stage}/smtp/port~true}
+    SMTP_USER: ${ssm:/omni-dw/salesforce/${self:provider.stage}/smtp/user~true}
+    SMTP_PASSWORD: ${ssm:/omni-dw/salesforce/${self:provider.stage}/smtp/password~true}
+    SMTP_SENDER: ${ssm:/omni-dw/salesforce/${self:provider.stage}/smtp/sender~true}
+    SMTP_RECEIVER: ${ssm:/omni-dw/corsair/${self:provider.stage}/smtp/receiver~true}
+
+  package:
+    individually: true
+    include:
+        - 'src/CorsairReport/**'
+        - 'src/shared/**'
+  vpc:
+    securityGroupIds:
+      - ${ssm:/omni-dw/${self:provider.stage}/lambda/sgId}
+    subnetIds:
+      - ${ssm:/omni-dw/${self:provider.stage}/lambda/subnetA}
+  events:
+    - schedule: cron(0 16 * * ? *)
+    # - http:
+    #     path: /
+    #     method: get
+    #     cors: true
