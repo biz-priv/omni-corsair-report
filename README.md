@@ -1,4 +1,6 @@
-# omni-corsair-report
+# TODO - always after deploying to dev, disable the cloudwatch event schedule omni-dw-corsair-dev-SendReportEventsSchedule<>, since corsair uses same SMTP credentials for dev and prod
+
+## omni-corsair-report
 
 Email the Corsair Report to the customer on a daily basis
 
