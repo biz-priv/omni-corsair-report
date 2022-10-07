@@ -75,7 +75,6 @@ module.exports.handler = async (event) => {
         '' as "ATA Destination Airport / Port",
         '' as "Date Docs Turnover to Custom Broker",
         '' AS "Custom Release Date",
-        '' as "Call for APPT Date",
         to_char(a.SCHD_DELV_DATE , 'MM/DD/YYYY HH:MM') as "Estimated Delivery Date",
         `+ sqlRegex5 + ` as "Appointment number",
         to_char(app.app_date, 'MM/DD/YYYY HH:MM') as "Appointment Date",
