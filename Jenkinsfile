@@ -19,31 +19,31 @@ pipeline {
                 }
             }
         }
-        stage('BizDev Deploy'){
-            when {
-                anyOf {
-                    branch 'devint';
-                    branch 'feature/*';
-                    branch 'bugfix/*'
-                }
-                expression {
-                    return true;
-                }
-            }
-            steps {
-                withAWS(credentials: 'bizdev-aws-creds'){
-                    sh """
-                    npm i serverless
-                    npm i
-                    cd lib/nodejs
-                    npm i
-                    cd ../..
-                    serverless --version
-                    sls deploy -s ${env.ENVIRONMENT}
-                    """
-                }
-            }
-        }
+        // stage('BizDev Deploy'){
+        //     when {
+        //         anyOf {
+        //             branch 'devint';
+        //             branch 'feature/*';
+        //             branch 'bugfix/*'
+        //         }
+        //         expression {
+        //             return true;
+        //         }
+        //     }
+        //     steps {
+        //         withAWS(credentials: 'bizdev-aws-creds'){
+        //             sh """
+        //             npm i serverless
+        //             npm i
+        //             cd lib/nodejs
+        //             npm i
+        //             cd ../..
+        //             serverless --version
+        //             sls deploy -s ${env.ENVIRONMENT}
+        //             """
+        //         }
+        //     }
+        // }
         stage('Omni Deploy'){
             when {
                 anyOf {
