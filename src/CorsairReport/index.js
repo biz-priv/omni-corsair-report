@@ -31,7 +31,7 @@ module.exports.handler = async (event) => {
         '' as Incoterms,
         '' as "Freight Term",
         '' as "Delivery lD",
-        r.ref as "PO#",`
+        CASE WHEN LENGTH(r.ref) > 239 THEN SUBSTRING(r.ref, 1, 239) ELSE r.ref END AS "PO#",`
         + sqlRegex + ` AS "Shipper Name",
         shipper_city AS "Shipper City",
         shipper_st AS "Shipper State",
@@ -153,7 +153,7 @@ module.exports.handler = async (event) => {
 
         let response = await client.query(sqlQuery)
         let rows = response['rows'];
-        console.info(rows.length);
+        console.info("Record Count",rows.length,"Records",rows);
         let rowsToCsv = await convertToCSV(rows);
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
