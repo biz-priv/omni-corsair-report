@@ -31,7 +31,7 @@ module.exports.handler = async (event) => {
         '' as Incoterms,
         '' as "Freight Term",
         '' as "Delivery lD",
-        r.ref as "PO#",`
+        left(r.ref,240) as "PO#",`
         + sqlRegex + ` AS "Shipper Name",
         shipper_city AS "Shipper City",
         shipper_st AS "Shipper State",
@@ -146,7 +146,7 @@ module.exports.handler = async (event) => {
         group by file_nbr )sf
         on a.file_nbr = sf.file_nbr
         where a.FILE_dATE < '`+ currentDate +`'
-        and a.FILE_dATE >= '2022-01-01'
+        and a.FILE_dATE >= '2023-01-01'
         and A.BILL_TO_NBR  = '17925'
         and a.current_status <> 'CAN'
         and HOUSE_BILL_NBR  <> 0`;
