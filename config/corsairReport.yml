@@ -1,7 +1,7 @@
 SendReport:
   handler: src/CorsairReport/index.handler
   layers:
-    - { Ref: CommonLibsLambdaLayer }  
+    - { Ref: commonLibsLambdaLayer }  
   environment:
     DB_PORT: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/port}
     DB_HOST: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/host~true}
