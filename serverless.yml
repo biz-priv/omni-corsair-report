@@ -34,8 +34,9 @@ plugins:
 layers:
   commonLibs:
     path: lib
+    name: omni-dw-corsair-${self:provider.stage}
     compatibleRuntimes:
-      - nodejs18.x
-    # package:     
-    #   include:
-    #     - node_modules/**
+      - nodejs14.x
+    package:     
+      include:
+        - node_modules/**
