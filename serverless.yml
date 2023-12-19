@@ -36,6 +36,6 @@ layers:
     path: lib
     compatibleRuntimes:
       - nodejs14.x
-    package:      
-      include:
-        - node_modules/**
+    # package:      
+    #   include:
+    #     - node_modules/**
