@@ -2,7 +2,7 @@ service: omni-dw-corsair
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs18.x
   region: ${opt:region, 'us-east-1'}
   stage: ${opt:stage, 'dev'}
   memorySize: 128 
@@ -36,7 +36,7 @@ layers:
     path: lib
     name: omni-dw-corsair-${self:provider.stage}
     compatibleRuntimes:
-      - nodejs16.x
+      - nodejs18.x
     package:     
       include:
         - node_modules/**
