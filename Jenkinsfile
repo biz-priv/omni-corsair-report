@@ -20,11 +20,8 @@ pipeline {
         stage('Omni Deploy'){
             when {
                 anyOf {
-                    branch 'dev';
-                    branch 'hotfix/*';
-                    branch 'feature/*';
-                    branch 'bugfix/*';
-                    branch 'master'
+                    branch 'master';
+                    branch 'develop';
                 }
                 expression {
                     return true;
