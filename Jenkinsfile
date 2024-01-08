@@ -6,7 +6,7 @@ pipeline {
                 script{
                     echo "GIT_BRANCH: ${GIT_BRANCH}"
                     echo sh(script: 'env|sort', returnStdout: true)
-                    if ("${GIT_BRANCH}".contains("feature") || "${GIT_BRANCH}".contains("bugfix") || "${GIT_BRANCH}".contains("dev")) {
+                    if ("${GIT_BRANCH}".contains("feature") || "${GIT_BRANCH}".contains("bugfix") || "${GIT_BRANCH}".contains("develop")) {
                         env.ENVIRONMENT=env.getProperty("environment_develop")
                     } else if ("${GIT_BRANCH}".contains("master") || "${GIT_BRANCH}".contains("hotfix")){
                         env.ENVIRONMENT=env.getProperty("environment_prod")
@@ -20,11 +20,8 @@ pipeline {
         stage('Omni Deploy'){
             when {
                 anyOf {
-                    branch 'dev';
-                    branch 'hotfix/*';
-                    branch 'feature/*';
-                    branch 'bugfix/*';
-                    branch 'master'
+                    branch 'master';
+                    branch 'develop';
                 }
                 expression {
                     return true;
