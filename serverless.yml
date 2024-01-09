@@ -28,15 +28,14 @@ functions:
     - ${file(config/corsairReport.yml)}
 resources:
   Resources:
-    MyLogGroup:
-      Type: AWS::Logs::LogGroup
-      Properties:
-        LogGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
+    # MyLogGroup:
+    #   Type: AWS::Logs::LogGroup
+    #   Properties:
+    #     LogGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
     MyMetricFilter:
       Type: AWS::Logs::MetricFilter
       Properties:
-        LogGroupName:
-          Ref: MyLogGroup
+        LogGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
         FilterPattern: "[ERROR]"
         MetricTransformations:
           - MetricValue: "1"
