@@ -26,25 +26,48 @@ package:
     - '*.*'
 functions:
     - ${file(config/corsairReport.yml)}
-alarms:
-  - cloudwatchLog:
-      logGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
-      filterPattern: "ERROR"
-      metricName: "ErrorCount"
-      threshold: 1
-      evaluationPeriods: 1
-      comparisonOperator: "GreaterThanOrEqualToThreshold"
-      namespace: "AWS/Lambda"
-      dimensions:
-        - Name: "FunctionName"
-          Value: "${self:service}-${self:provider.stage}-SendReport"
-      alarmName: "corsair-reports-lambda-error-alarm"
-      treatMissingData: "missing"
-      period: 60
-      statistic: "Sum"
-      actionsEnabled: true
-      alarmActions:
-        - ${ssm:/omni-reports/${self:provider.stage}/error-notification/sns/arn}
+resources:
+  Resources:
+    MyLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
+    MyMetricFilter:
+      Type: AWS::Logs::MetricFilter
+      Properties:
+        LogGroupName:
+          Ref: MyLogGroup
+        FilterPattern: "[ERROR]"
+        MetricTransformations:
+          - MetricValue: "1"
+            MetricNamespace: "MyNamespace"
+            MetricName: "ErrorCount"
+    MySNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: "omni-dw-corsair-error-notification-topic"
+        TopicName: "omni-dw-corsair-error-notification-topic"
+    MySNSSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: email
+        TopicArn:
+          Ref: MySNSTopic
+        Endpoint: naveen.chitturi@bizcloudexperts.com
+    MyAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: corsair-reports-lambda-error-alarm
+        ComparisonOperator: GreaterThanThreshold
+        EvaluationPeriods: 1
+        MetricName: ErrorCount
+        Namespace: MyNamespace
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+        ActionsEnabled: true
+        AlarmActions:
+          - Ref: MySNSTopic
 
 plugins:
   - serverless-offline
