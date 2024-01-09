@@ -50,7 +50,7 @@ SendReport:
         dimensions:
           - Name: "FunctionName"
             Value: "${self:service}-${self:provider.stage}-SendReport"
-        alarmName: "SendReportErrorAlarm"
+        alarmName: "corsair-reports-lambda-error-alarm"
         treatMissingData: "missing"
         period: 60
         statistic: "Sum"
