@@ -38,22 +38,22 @@ SendReport:
     #     path: /
     #     method: get
     #     cors: true
-  alarms:
-    - cloudwatchLog:
-        logGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
-        filterPattern: "ERROR"
-        metricName: "ErrorCount"
-        threshold: 1
-        evaluationPeriods: 1
-        comparisonOperator: "GreaterThanOrEqualToThreshold"
-        namespace: "AWS/Lambda"
-        dimensions:
-          - Name: "FunctionName"
-            Value: "${self:service}-${self:provider.stage}-SendReport"
-        alarmName: "corsair-reports-lambda-error-alarm"
-        treatMissingData: "missing"
-        period: 60
-        statistic: "Sum"
-        actionsEnabled: true
-        alarmActions:
-          - ${ssm:/omni-reports/${self:provider.stage}/error-notification/sns/arn}
+  # alarms:
+  #   - cloudwatchLog:
+  #       logGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
+  #       filterPattern: "ERROR"
+  #       metricName: "ErrorCount"
+  #       threshold: 1
+  #       evaluationPeriods: 1
+  #       comparisonOperator: "GreaterThanOrEqualToThreshold"
+  #       namespace: "AWS/Lambda"
+  #       dimensions:
+  #         - Name: "FunctionName"
+  #           Value: "${self:service}-${self:provider.stage}-SendReport"
+  #       alarmName: "corsair-reports-lambda-error-alarm"
+  #       treatMissingData: "missing"
+  #       period: 60
+  #       statistic: "Sum"
+  #       actionsEnabled: true
+  #       alarmActions:
+  #         - ${ssm:/omni-reports/${self:provider.stage}/error-notification/sns/arn}
