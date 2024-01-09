@@ -20,7 +20,7 @@ SendReport:
     SMTP_SENDER: ${ssm:/omni-dw/salesforce/${self:provider.stage}/smtp/sender}
     SMTP_RECEIVER: ${ssm:/omni-dw/corsair/${self:provider.stage}/smtp/receiver}
     SNS_TOPIC_ARN: ${ssm:/omni-reports/${self:provider.stage}/error-notification/sns/arn}
-  	REGION: ${self:provider.region}
+    REGION: ${self:provider.region}
 
   package:
     individually: true
