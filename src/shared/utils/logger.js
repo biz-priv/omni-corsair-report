@@ -13,8 +13,8 @@ module.exports = {
             "@timestamp": moment().format(),
             "status": status,
             "message": JSON.stringify(message),
-            "service-name": "logs-sample",
-            "application": "biz-dev",
+            "service-name": process.env.SERVICE,
+            "application": "omni",
             "region": process.env.REGION,
             "functionName": functionName
         }));
@@ -24,8 +24,8 @@ module.exports = {
             "@timestamp": moment().format(),
             "status": status,
             "message": JSON.stringify(message),
-            "service-name": "logs-sample",
-            "application": "biz-dev",
+            "service-name": process.env.SERVICE,
+            "application": "omni",
             "region": process.env.REGION,
             "functionName": functionName
         }));

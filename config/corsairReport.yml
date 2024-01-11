@@ -21,6 +21,7 @@ SendReport:
     SMTP_RECEIVER: ${ssm:/omni-dw/corsair/${self:provider.stage}/smtp/receiver}
     SNS_TOPIC_ARN: ${ssm:/omni-reports/${self:provider.stage}/error-notification/sns/arn}
     REGION: ${self:provider.region}
+    SERVICE: ${self:service}
 
   package:
     individually: true
