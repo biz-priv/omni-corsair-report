@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const { ERROR, INFO } = require('../shared/utils/logger');
 
 async function sendEmail(mailSubject, body) {
     return new Promise((resolve, reject) => {
@@ -22,13 +23,15 @@ async function sendEmail(mailSubject, body) {
                     if (error) {
                         resolve(error)
                     }
-                    console.info("Email sent : \n", JSON.stringify(info));
+                    //console.info("Email sent : \n", JSON.stringify(info));
+                    INFO(functionName,info)
                     resolve(info)
                 }
             );
             return true;
         } catch (error) {
-            console.error("Error : \n", error);
+            //console.error("Error : \n", error);
+            ERROR(functionName, error, 500)
             return false;
         }
     })

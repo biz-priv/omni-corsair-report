@@ -1,13 +1,12 @@
 const { send_response } = require('../shared/utils/responses');
 const { Client } = require("pg");
 const { uploadCsv, convertToCSV } = require('../shared/csvHelper/index');
-const AWS = require("aws-sdk");
-const { SNS_TOPIC_ARN } = process.env;
-const sns = new AWS.SNS({ region: process.env.REGION });
+const { ERROR, INFO } = require('../shared/utils/logger');
 
-module.exports.handler = async (event,context) => {
-    console.info("Event: \n", JSON.stringify(event));
-
+let functionName = ""
+module.exports.handler = async (event, context) => {
+    functionName = context.functionName
+    INFO(functionName, { Event: JSON.stringify(event) })
     const client = new Client({
         database: process.env.DB_DATABASE,
         host: process.env.DB_HOST,
@@ -169,12 +168,8 @@ module.exports.handler = async (event,context) => {
         console.info(uploadCsvFile);
         return send_response(200);
     } catch (error) {
-        const params = {
-            Message: `Error in ${context.functionName}, Error: ${error.Message}`,
-            TopicArn: SNS_TOPIC_ARN,
-        };
-        await sns.publish(params).promise();
         console.error("Error : \n", error);
+        ERROR(functionName, error, 500)
         send_response(400, error);
     }
 }
