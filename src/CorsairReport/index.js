@@ -164,7 +164,7 @@ module.exports.handler = async (event, context) => {
         today = mm + dd + yyyy;
         await client.end();
 
-        let uploadCsvFile = await uploadCsv(rowsToCsv, today);
+        let uploadCsvFile = await uploadCsv(rowsToCsv, today, functionName);
         console.info(uploadCsvFile);
         return send_response(200);
     } catch (error) {

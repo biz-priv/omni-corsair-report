@@ -2,7 +2,7 @@ const SFTPCLIENT = require('ssh2').Client;
 const { sendEmail } = require('../sendEmail/index');
 const { INFO, ERROR } = require('../utils/logger');
 
-async function uploadCsv(rowsToCsv, today) {
+async function uploadCsv(rowsToCsv, today, functionName) {
     console.info("functionName", functionName)
     return new Promise((resolve, reject) => {
         let filePath = 'EDI/214/Omni_214_' + today + '.csv';
@@ -23,7 +23,7 @@ async function uploadCsv(rowsToCsv, today) {
                     ERROR(functionName, err, 500)
                     let mailSubject = "Corsair File Failed To Upload";
                     let mailBody = `Hello, <br><br> Getting error in connection of SFTP. File ${filePath} uploading failed.<br>Thanks.<br>`;
-                    await sendEmail(mailSubject, mailBody);
+                    await sendEmail(mailSubject, mailBody, functionName);
 
                     reject(err);
                 } else {
@@ -40,7 +40,7 @@ async function uploadCsv(rowsToCsv, today) {
                         conn.end();
                         let mailSubject = "Corsair File Transferred To SFTP Succesfully";
                         let mailBody = `Hello, <br><br> File transferred to SFTP successfully. you can get file in ${filePath} path.`;
-                        await sendEmail(mailSubject, mailBody);
+                        await sendEmail(mailSubject, mailBody, functionName);
                         resolve('file Uploaded')
                     });
                 }

@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const { INFO, ERROR } = require("../utils/logger");
 
-async function sendEmail(mailSubject, body) {
+async function sendEmail(mailSubject, body, functionName) {
     return new Promise((resolve, reject) => {
         try {
             const TRANSPORTER = nodemailer.createTransport({
