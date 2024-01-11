@@ -55,7 +55,7 @@ resources:
         AlarmName: corsair-reports-lambda-error-alarm-${self:provider.stage}
         ComparisonOperator: GreaterThanThreshold
         EvaluationPeriods: 1
-        MetricName: ErrorCount
+        MetricName: ErrorCount-${self:provider.stage}
         Namespace: MyNamespace
         Period: 60
         Statistic: Sum
