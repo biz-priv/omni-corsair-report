@@ -32,11 +32,11 @@ resources:
       Type: AWS::Logs::MetricFilter
       Properties:
         LogGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
-        FilterPattern: "{($.status = 500)}"
+        FilterPattern: "{$.status = 500}"
         MetricTransformations:
           - MetricValue: "1"
             MetricNamespace: "MyNamespace"
-            MetricName: "ErrorCount-${self:provider.stage}"
+            MetricName: "error-metric-${self:provider.stage}"
     MySNSTopic:
       Type: AWS::SNS::Topic
       Properties:
@@ -55,7 +55,7 @@ resources:
         AlarmName: corsair-reports-lambda-error-alarm-${self:provider.stage}
         ComparisonOperator: GreaterThanThreshold
         EvaluationPeriods: 1
-        MetricName: ErrorCount-${self:provider.stage}
+        MetricName: error-metric-${self:provider.stage}
         Namespace: MyNamespace
         Period: 60
         Statistic: Sum

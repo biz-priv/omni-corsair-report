@@ -3,7 +3,6 @@ const { sendEmail } = require('../sendEmail/index');
 const { INFO, ERROR } = require('../utils/logger');
 
 async function uploadCsv(rowsToCsv, today, functionName) {
-    console.info("functionName", functionName)
     return new Promise((resolve, reject) => {
         let filePath = 'EDI/214/Omni_214_' + today + '.csv';
         let s3FileStreamContent = rowsToCsv;
