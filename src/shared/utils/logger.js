@@ -20,7 +20,7 @@ module.exports = {
         }));
     },
     ERROR(functionName, message, status = 500) {
-        logger.info(JSON.stringify({
+        logger.error(JSON.stringify({
             "@timestamp": moment().format(),
             "status": status,
             "message": JSON.stringify(message),
