@@ -23,15 +23,14 @@ async function sendEmail(mailSubject, body, functionName) {
                     if (error) {
                         resolve(error)
                     }
-                    //console.info("Email sent : \n", JSON.stringify(info));
-                    INFO(functionName,info)
+                    INFO(functionName,info);
                     resolve(info)
                 }
             );
             return true;
         } catch (error) {
             //console.error("Error : \n", error);
-            ERROR(functionName, error, 500)
+            ERROR(functionName, error, 500);
             return false;
         }
     })
