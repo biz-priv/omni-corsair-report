@@ -1,19 +1,11 @@
 const log4js = require('log4js');
-const log4jsError = require('log4js');
 const moment = require('moment');
 
 log4js.configure({
     appenders: { out: { type: "stdout", layout: { type: "messagePassThrough" } } },
     categories: { default: { appenders: ["out"], level: "info" } }
 });
-
-log4jsError.configure({
-    appenders: { out: { type: "stdout", layout: { type: "messagePassThrough" } } },
-    categories: { default: { appenders: ["out"], level: "error" } }
-});
-
 const logger = log4js.getLogger("out");
-const loggerError = log4js.getLogger("out");
 
 module.exports = {
     INFO(functionName, message, status = 200) {
@@ -28,7 +20,7 @@ module.exports = {
         }));
     },
     ERROR(functionName, message, status = 500) {
-        loggerError.error(JSON.stringify({
+        logger.info(JSON.stringify({
             "@timestamp": moment().format(),
             "status": status,
             "message": JSON.stringify(message),
