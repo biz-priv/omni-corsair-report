@@ -32,7 +32,7 @@ resources:
       Type: AWS::Logs::MetricFilter
       Properties:
         LogGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
-        FilterPattern: "{$.status > 300}"
+        FilterPattern: "{$.status = 500}"
         MetricTransformations:
           - MetricValue: "1"
             MetricNamespace: "MyNamespace"
@@ -53,7 +53,7 @@ resources:
       Type: AWS::CloudWatch::Alarm
       Properties:
         AlarmName: corsair-reports-lambda-error-alarm-${self:provider.stage}
-        ComparisonOperator: GreaterThanThreshold
+        ComparisonOperator: GreaterThanOrEqualToThreshold
         EvaluationPeriods: 1
         MetricName: error-metric-${self:provider.stage}
         Namespace: MyNamespace
