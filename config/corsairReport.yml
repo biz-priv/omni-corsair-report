@@ -5,7 +5,7 @@ SendReport:
   environment:
     DB_PORT: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/port}
     DB_HOST: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/host}
-    DB_PASSWORD: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/password}   
+    DB_PASSWORD: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/password}
     DB_DATABASE: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/name}
     DB_USER: ${ssm:/omni-dw/corsair/${self:provider.stage}/db/user}
     DEFAULT_AWS: ${self:provider.region}
@@ -21,6 +21,7 @@ SendReport:
     SMTP_RECEIVER: ${ssm:/omni-dw/corsair/${self:provider.stage}/smtp/receiver}
     SNS_TOPIC_ARN: ${ssm:/omni-reports/${self:provider.stage}/error-notification/sns/arn}
     REGION: ${self:provider.region}
+    SERVICE: ${self:service}
 
   package:
     individually: true

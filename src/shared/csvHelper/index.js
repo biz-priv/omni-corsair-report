@@ -1,7 +1,8 @@
 const SFTPCLIENT = require('ssh2').Client;
 const { sendEmail } = require('../sendEmail/index');
+const { log } = require('../utils/logger');
 
-async function uploadCsv(rowsToCsv, today) {
+async function uploadCsv(rowsToCsv, today, functionName) {
     return new Promise((resolve, reject) => {
         let filePath = 'EDI/214/Omni_214_' + today + '.csv';
         let s3FileStreamContent = rowsToCsv;
@@ -13,29 +14,28 @@ async function uploadCsv(rowsToCsv, today) {
         };
         let conn = new SFTPCLIENT();
         conn.on('ready', function () {
-            console.info("Connection ready..");
+            log.INFO(functionName, "Connection ready..");
             conn.sftp(async function (err, sftp) {
                 if (err) {
-                    console.error("Error In Connection. File Uploading Failed", err);
-                    
+                    log.ERROR(functionName, err, 500);
                     let mailSubject = "Corsair File Failed To Upload";
                     let mailBody = `Hello, <br><br> Getting error in connection of SFTP. File ${filePath} uploading failed.<br>Thanks.<br>`;
-                    await sendEmail(mailSubject, mailBody);
+                    await sendEmail(mailSubject, mailBody, functionName);
 
                     reject(err);
                 } else {
                     let options = Object.assign({}, {
                         encoding: 'utf-8'
                     }, true);
-                    console.info("File Transferring to path : " + filePath);
+                    log.INFO(functionName, filePath);
                     let stream = sftp.createWriteStream(filePath, options);
                     let data = stream.end(s3FileStreamContent);
-                    stream.on('close',async function () {
-                        console.info("File Transferred To SFTP Succesfully");
+                    stream.on('close', async function () {
+                        log.INFO(functionName, "File Transferred To SFTP Succesfully");
                         conn.end();
                         let mailSubject = "Corsair File Transferred To SFTP Succesfully";
                         let mailBody = `Hello, <br><br> File transferred to SFTP successfully. you can get file in ${filePath} path.`;
-                        await sendEmail(mailSubject, mailBody);
+                        await sendEmail(mailSubject, mailBody, functionName);
                         resolve('file Uploaded')
                     });
                 }
