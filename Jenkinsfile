@@ -21,7 +21,7 @@ pipeline {
             when {
                 anyOf {
                     branch 'master';
-                    branch 'develop'; 
+                    branch 'develop';
                 }
                 expression {
                     return true;
