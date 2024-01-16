@@ -29,7 +29,6 @@ async function sendEmail(mailSubject, body, functionName) {
             );
             return true;
         } catch (error) {
-            //console.error("Error : \n", error);
             ERROR(functionName, error, 500);
             return false;
         }
