@@ -41,7 +41,7 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         DisplayName: "omni-dw-corsair-error-notification-topic-${self:provider.stage}"
-        TopicName: "omni-dw-corsair-error-notification-topic${self:provider.stage}"
+        TopicName: "omni-dw-corsair-error-notification-topic-${self:provider.stage}"
     MySNSSubscription:
       Type: AWS::SNS::Subscription
       Properties:
