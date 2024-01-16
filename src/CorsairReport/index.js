@@ -1,12 +1,12 @@
 const { send_response } = require('../shared/utils/responses');
 const { Client } = require("pg");
 const { uploadCsv, convertToCSV } = require('../shared/csvHelper/index');
-const { ERROR, INFO } = require('../shared/utils/logger');
+const { log } = require('../shared/utils/logger');
 
 let functionName = "";
 module.exports.handler = async (event, context) => {
     functionName = context.functionName;
-    INFO(functionName, { Event: JSON.stringify(event) });
+    log.INFO(functionName, { Event: JSON.stringify(event) });
     const client = new Client({
         database: process.env.DB_DATABASE,
         host: process.env.DB_HOST,
@@ -155,7 +155,7 @@ module.exports.handler = async (event, context) => {
 
         let response = await client.query(sqlQuery);
         let rows = response['rows'];
-        INFO(functionName, rows.length);
+        log.INFO(functionName, rows.length);
         let rowsToCsv = await convertToCSV(rows);
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
@@ -165,11 +165,11 @@ module.exports.handler = async (event, context) => {
         await client.end();
 
         let uploadCsvFile = await uploadCsv(rowsToCsv, today, functionName);
-        INFO(functionName, uploadCsvFile);
+        log.INFO(functionName, uploadCsvFile);
         return send_response(200);
     } catch (error) {
         console.error("Error : \n", error);
-        ERROR(functionName, error, 500);
+        log.ERROR(functionName, error, 500);
         send_response(400, error);
     }
 }

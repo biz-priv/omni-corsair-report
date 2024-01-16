@@ -7,7 +7,7 @@ log4js.configure({
 });
 const logger = log4js.getLogger("out");
 
-module.exports = {
+module.exports.log = {
     INFO(functionName, message, status = 200) {
         logger.info(JSON.stringify({
             "@timestamp": moment().format(),
@@ -17,7 +17,7 @@ module.exports = {
             "application": "omni",
             "region": process.env.REGION,
             "functionName": functionName
-        }));
+        })); 
     },
     ERROR(functionName, message, status = 500) {
         logger.info(JSON.stringify({
