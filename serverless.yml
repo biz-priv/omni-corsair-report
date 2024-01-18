@@ -26,6 +26,43 @@ package:
     - '*.*'
 functions:
     - ${file(config/corsairReport.yml)}
+resources:
+  Resources:
+    MyMetricFilter:
+      Type: AWS::Logs::MetricFilter
+      Properties:
+        LogGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
+        FilterPattern: "{$.status = 500}"
+        MetricTransformations:
+          - MetricValue: "1"
+            MetricNamespace: "MyNamespace"
+            MetricName: "error-metric-${self:provider.stage}"
+    MySNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: "omni-dw-corsair-error-notification-topic-${self:provider.stage}"
+        TopicName: "omni-dw-corsair-error-notification-topic-${self:provider.stage}"
+    MySNSSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: email
+        TopicArn:
+          Ref: MySNSTopic
+        Endpoint: ${ssm:/omni/support/${self:provider.stage}/alarm/email}
+    MyAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: corsair-reports-lambda-error-alarm-${self:provider.stage}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        EvaluationPeriods: 1
+        MetricName: error-metric-${self:provider.stage}
+        Namespace: MyNamespace
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+        ActionsEnabled: true
+        AlarmActions:
+          - Ref: MySNSTopic
 
 plugins:
   - serverless-offline
