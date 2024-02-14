@@ -20,7 +20,7 @@ async function uploadCsv(rowsToCsv, today, functionName) {
                     log.ERROR(functionName, err, 500);
                     let mailSubject = "Corsair File Failed To Upload";
                     let mailBody = `Hello, <br><br> Getting error in connection of SFTP. File ${filePath} uploading failed.<br>Thanks.<br>`;
-                    await sendEmail(mailSubject, mailBody, functionName);
+                    await sendEmail(mailSubject, mailBody, functionName,process.env.SMTP_FAILER);
 
                     reject(err);
                 } else {
@@ -35,7 +35,7 @@ async function uploadCsv(rowsToCsv, today, functionName) {
                         conn.end();
                         let mailSubject = "Corsair File Transferred To SFTP Succesfully";
                         let mailBody = `Hello, <br><br> File transferred to SFTP successfully. you can get file in ${filePath} path.`;
-                        await sendEmail(mailSubject, mailBody, functionName);
+                        await sendEmail(mailSubject, mailBody, functionName,process.env.SMTP_SUCCESS);
                         resolve('file Uploaded')
                     });
                 }

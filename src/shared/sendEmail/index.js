@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const { log } = require("../utils/logger");
 
-async function sendEmail(mailSubject, body, functionName) {
+async function sendEmail(mailSubject, body, functionName, receiver) {
     return new Promise((resolve, reject) => {
         try {
             const TRANSPORTER = nodemailer.createTransport({
@@ -15,7 +15,7 @@ async function sendEmail(mailSubject, body, functionName) {
             TRANSPORTER.sendMail(
                 {
                     from: process.env.SMTP_SENDER,
-                    to: process.env.SMTP_RECEIVER,
+                    to: receiver,
                     subject: process.env.stage + "-" + mailSubject,
                     html: body,
                 },
