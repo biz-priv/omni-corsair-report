@@ -16,7 +16,7 @@ async function uploadCsv(rowsToCsv, today, functionName) {
         conn.on('ready', function () {
             log.INFO(functionName, "Connection ready..");
             conn.sftp(async function (err, sftp) {
-                if (err = 1) {
+                if (err) {
                     log.ERROR(functionName, err, 500);
                     let mailSubject = "Corsair File Failed To Upload";
                     let mailBody = `Hello, <br><br> Getting error in connection of SFTP. File ${filePath} uploading failed.<br>Thanks.<br>`;
