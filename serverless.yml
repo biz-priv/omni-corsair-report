@@ -32,7 +32,7 @@ resources:
       Type: AWS::Logs::MetricFilter
       Properties:
         LogGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-SendReport"
-        FilterPattern: "{$.status = 500}"
+        FilterPattern: "Error" #changing pattern from error
         MetricTransformations:
           - MetricValue: "1"
             MetricNamespace: "MyNamespace"

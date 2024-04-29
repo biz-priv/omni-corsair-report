@@ -4,7 +4,7 @@ const { log } = require('../utils/logger');
 
 async function uploadCsv(rowsToCsv, today, functionName) {
     return new Promise((resolve, reject) => {
-        let filePath = 'EDI/214/Omni_214_' + today + '.csv';
+        // let filePath = 'EDI/214/Omni_214_' + today + '.csv';
         let s3FileStreamContent = rowsToCsv;
         let connSettings = {
             host: process.env.SFTP_HOST,
