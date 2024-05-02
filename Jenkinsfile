@@ -22,6 +22,7 @@ pipeline {
                 anyOf {
                     branch 'master';
                     branch 'develop';
+                   
                 }
                 expression {
                     return true;

@@ -33,8 +33,8 @@ SendReport:
       - ${ssm:/omni-dw/${self:provider.stage}/lambda/sgId}
     subnetIds:
       - ${ssm:/omni-dw/${self:provider.stage}/lambda/subnetA}
-  events:
-    - schedule: cron(0 16 * * ? *)
+  # events:
+  #   - schedule: cron(0 16 * * ? *)
     # - http:
     #     path: /
     #     method: get
