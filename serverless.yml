@@ -8,6 +8,10 @@ provider:
   memorySize: 128 
   timeout: 600
   role : ${ssm:/omni-dw/${self:provider.stage}/lambda/role}
+  stackTags:
+    Application: Omni corsair report
+    CreateBy: BizCloudExperts
+    Environment: ${self:provider.stage}  
   environment:
     stage: ${self:provider.stage}
 
