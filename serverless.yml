@@ -10,6 +10,10 @@ provider:
   role : ${ssm:/omni-dw/${self:provider.stage}/lambda/role}
   environment:
     stage: ${self:provider.stage}
+  stackTags:
+    Application: Omni corsair report
+    CreateBy: BizCloudExperts
+    Environment: ${self:provider.stage}      
 
 custom:
   prune:

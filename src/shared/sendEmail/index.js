@@ -1,3 +1,10 @@
+/*
+* File: src\shared\sendEmail\index.js
+* Project: Omni-corsair-reports
+* Author: Bizcloud Experts
+* Date: 2024-02-01
+* Confidential and Proprietary
+*/
 const nodemailer = require("nodemailer");
 const { log } = require("../utils/logger");
 

@@ -1,4 +1,11 @@
 // send response
+/*
+* File: src\shared\utils\responses.js
+* Project: Omni-corsair-reports
+* Author: Bizcloud Experts
+* Date: 2022-01-15
+* Confidential and Proprietary
+*/
 function send_response(http_code, resp = null) {
     var resonseData;
     if (resp) {

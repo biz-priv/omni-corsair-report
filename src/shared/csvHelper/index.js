@@ -1,3 +1,10 @@
+/*
+* File: src\shared\csvHelper\index.js
+* Project: Omni-corsair-reports
+* Author: Bizcloud Experts
+* Date: 2024-02-14
+* Confidential and Proprietary
+*/
 const SFTPCLIENT = require('ssh2').Client;
 const { sendEmail } = require('../sendEmail/index');
 const { log } = require('../utils/logger');

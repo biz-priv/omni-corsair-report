@@ -1,3 +1,10 @@
+/*
+* File: src\shared\utils\logger.js
+* Project: Omni-corsair-reports
+* Author: Bizcloud Experts
+* Date: 2024-01-16
+* Confidential and Proprietary
+*/
 const log4js = require('log4js');
 const moment = require('moment');
 
