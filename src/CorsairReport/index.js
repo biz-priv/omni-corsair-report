@@ -1,3 +1,10 @@
+/*
+* File: src\CorsairReport\index.js
+* Project: Omni-corsair-reports
+* Author: Bizcloud Experts
+* Date: 2024-01-16
+* Confidential and Proprietary
+*/
 const { send_response } = require('../shared/utils/responses');
 const { Client } = require("pg");
 const { uploadCsv, convertToCSV } = require('../shared/csvHelper/index');
