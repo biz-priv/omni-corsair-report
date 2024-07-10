@@ -1,7 +1,7 @@
 SendReport:
   handler: src/CorsairReport/index.handler
   tags:
-  Name : CorsairReport
+    Name : CorsairReport
   layers:
     - { Ref: CommonLibsLambdaLayer }  
   environment:
